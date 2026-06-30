@@ -22,3 +22,19 @@ jobs:
       - name: Execute 6 Test Cases
         run: |
           python -m pytest test_app.py
+
+  deploy-and-rollback:
+    needs: run-tests
+    runs-on: ubuntu-latest
+    # This job runs even if the previous testing job fails
+    if: always()
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Simulate Rollback
+        # This step only executes if the test job failed
+        if: ${{ needs.run-tests.result == 'failure' }}
+        run: |
+          echo "⚠️ Tests failed! Initiating automatic rollback procedure..."
+          echo "🔄 Rolling back to the last known stable version..."
